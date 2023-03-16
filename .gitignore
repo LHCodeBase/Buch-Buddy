@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignore OpenAI API key file
+OPENAI_API_KEY.txt
