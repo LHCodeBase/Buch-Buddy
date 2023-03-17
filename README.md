@@ -11,10 +11,10 @@ Buch-Buddy is a webapp that uses the ChatGPT API to generate book recommendation
 
 ### Currently a work in progress. Please be patient
 1. Navigate to the project directory in your terminal.
-2. Run `python buch-buddy.py` to start the webapp.
-3. Open your web browser and navigate to `http://localhost:5000/`.
-4. Enter a book title, author, or genre into the search bar and click "Search".
-5. The webapp will generate a list of recommended books based on your input.
+2. Run `python buch-buddy.py` to start the ~~webapp.~~ script.
+~~3. Open your web browser and navigate to `http://localhost:5000/`.~~
+~~4. Enter a book title, author, or genre into the search bar and click "Search".~~
+~~5. The webapp will generate a list of recommended books based on your input.~~
 
 
 ## Contributing
