@@ -10,6 +10,10 @@
 
 import openai
 import os
+import json
+
+# Set some variables
+book_type = "title" # title, author, series
 
 # Set up OpenAI API key
 with open('OPENAI_API_KEY.txt', 'r') as f:
@@ -17,8 +21,8 @@ with open('OPENAI_API_KEY.txt', 'r') as f:
 
 openai.api_key = api_key
 
-def get_book_recommendations(genre, sub_genre, age_recommendation, vulgarity_rating, adult_interactions_rating):
-    prompt = f"Find books that match the following criteria:\n\nGenre: {genre}\nSub-genre: {sub_genre}\nAge Recommendation: {age_recommendation}\nVulgarity Rating: {vulgarity_rating}\nAdult Interactions Rating: {adult_interactions_rating}\n\nRecommended books:\n\n"
+def get_book_recommendations(genre, sub_genre, vulgarity_rating, adult_interactions_rating):
+    prompt = f"Find books that match the following criteria:\n\nGenre: {genre}\nSub-genre: {sub_genre}\nVulgarity Rating: {vulgarity_rating}\nAdult Interactions Rating: {adult_interactions_rating}\n\nRecommended books:\n\n"
 
     response = openai.Completion.create(
         engine="text-davinci-002",
@@ -30,27 +34,45 @@ def get_book_recommendations(genre, sub_genre, age_recommendation, vulgarity_rat
     )
 
     recommended_books = response.choices[0].text.strip()
+    print(f" recommended books: {recommended_books}")
 
     return recommended_books
 
-def get_book_properties(book_name):
-    prompt = f"For the following book title, series or author: Return the a python dictionary for the following keys:genre, sub_genre, vulgarity_rating (1-10),adult_interactions_rating (1-10)"
-
+def get_book_properties(*book_name):
+    prompt = f"For the book title, series or author {book_name}: Return json for the following keys:name, genre, sub_genre, vulgarity_rating (1-10),adult_interactions_rating (1-10)"
     response = openai.Completion.create(
         engine="text-davinci-002",
         prompt=prompt,
-        max_tokens=200,
+        max_tokens=300,
         n=1,
         stop=None,
         temperature=0.4,
     )
 
     print(response)
+    print(response.choices[0].text.strip())
+    #return response.choices[0].text.strip()
+    return response
+
+def book2json(book_name): # TODO Rename me
+    # TODO Make this return a list with the dictionary name being the book title.
+    # or redo it with decorators
+    book_json = json.loads(
+        json.dumps(
+            get_book_properties(book_name),
+            default=lambda x: x.__dict__
+        )
+    )
+    # Get text to convert to dict. ["choices"][0]["text"].replace("\n",",")
+    return book_json
+
     
 
 if __name__ == "__main__":
-    book_name = input("Enter a book name: ")
-    get_book_properties(book_name)
+    pass
+    #book_name = input("Enter a book name: ")
+    #get_book_properties(book_name)
+
 #    genre = input("Enter the genre: ")
 #    sub_genre = input("Enter the sub-genre: ")
 #    age_recommendation = input("Enter the age recommendation: ")
