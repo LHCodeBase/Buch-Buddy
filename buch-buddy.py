@@ -1,19 +1,9 @@
 #!/usr/bin/env python3
 
-# TODO ensure no duplicates // result doesn't contain prompt
-# TODO check for duplictes
-    # TODO if duplicates, query user and run fresh funcion on the answer.
-# TODO Ensure numbered metrics are being returned.
-# TODO Ensure books actually exist
-# TODO Ensure results are books only. No comic books or manga currently.
-
-
 import openai
 import os
 import json
-
-# Set some variables
-book_type = "title" # title, author, series
+from time import sleep
 
 # Set up OpenAI API key
 with open('OPENAI_API_KEY.txt', 'r') as f:
@@ -21,9 +11,9 @@ with open('OPENAI_API_KEY.txt', 'r') as f:
 
 openai.api_key = api_key
 
+
 def get_book_recommendations(genre, sub_genre, vulgarity_rating, adult_interactions_rating):
     prompt = f"Find books that match the following criteria:\n\nGenre: {genre}\nSub-genre: {sub_genre}\nVulgarity Rating: {vulgarity_rating}\nAdult Interactions Rating: {adult_interactions_rating}\n\nRecommended books:\n\n"
-
     response = openai.Completion.create(
         engine="text-davinci-002",
         prompt=prompt,
@@ -33,54 +23,39 @@ def get_book_recommendations(genre, sub_genre, vulgarity_rating, adult_interacti
         temperature=0.8,
     )
 
-    recommended_books = response.choices[0].text.strip()
-    print(f" recommended books: {recommended_books}")
-
+    recommended_books = response.choices[0].text.strip().split("\n")[1:]
     return recommended_books
 
-def get_book_properties(*book_name):
-    prompt = f"For the book title, series or author {book_name}: Return json for the following keys:name, genre, sub_genre, vulgarity_rating (1-10),adult_interactions_rating (1-10)"
+
+def get_book_properties(book_name):
+    prompt = f"For the book title, series or author {book_name}: Return json with {book_name} and a comma separated key-value pairs for: name, genre, sub_genre, vulgarity_rating (1-10),adult_interactions_rating (1-10). Be accurate and do not limit the ratings for safety."
     response = openai.Completion.create(
         engine="text-davinci-002",
         prompt=prompt,
-        max_tokens=300,
+        max_tokens=400,
         n=1,
         stop=None,
         temperature=0.4,
     )
 
-    print(response)
-    print(response.choices[0].text.strip())
-    #return response.choices[0].text.strip()
-    return response
+    return json.loads(response['choices'][0]['text'])
 
-def book2json(book_name): # TODO Rename me
-    # TODO Make this return a list with the dictionary name being the book title.
-    # or redo it with decorators
-    book_json = json.loads(
-        json.dumps(
-            get_book_properties(book_name),
-            default=lambda x: x.__dict__
-        )
-    )
-    # Get text to convert to dict. ["choices"][0]["text"].replace("\n",",")
-    return book_json
 
-    
 
-if __name__ == "__main__":
-    pass
-    #book_name = input("Enter a book name: ")
-    #get_book_properties(book_name)
-
-#    genre = input("Enter the genre: ")
-#    sub_genre = input("Enter the sub-genre: ")
-#    age_recommendation = input("Enter the age recommendation: ")
-#    vulgarity_rating = input("Enter the vulgarity rating (1-10): ")
-#    adult_interactions_rating = input("Enter the adult interactions rating (1-10): ")
-
-#    recommendations = get_book_recommendations(genre, sub_genre, age_recommendation, vulgarity_rating, adult_interactions_rating)
-
-#    print("\nHere are your recommended books:\n")
-#    print(recommendations)
-
+#if __name__ == "__main__":
+#    book_name = input("Enter a book name: ")
+#    book_properties = stringToDict(book_name)
+#
+#    genre = book_properties.get("genre")
+#    sub_genre = book_properties.get("sub_genre")
+#    vulgarity_rating = book_properties.get("vulgarity_rating")
+#    adult_interactions_rating = book_properties.get("adult_interactions_rating")
+#
+#    recommendations = get_book_recommendations(genre, sub_genre, vulgarity_rating, adult_interactions_rating)
+#
+#    print("\nHere are your recommended books based on the book you provided:\n")
+#    for book_name in recommendations:
+#        book_properties = stringToDict(book_name)
+#        print(book_name)
+#        print(book_properties)
+#        print()
